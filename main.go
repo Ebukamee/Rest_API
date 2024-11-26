@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	// "fmt"
-	// "math/rand"
+	"math/rand"
 	"net/http"
-	// "strconv"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -24,18 +24,18 @@ type Author struct {
 }
 
 // Init Book slice
-var book []Book
+var books []Book
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(book)
+	json.NewEncoder(w).Encode(books)
 }
 func getBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
 	// Loop through
-	for _, item := range book {
+	for _, item := range books {
 		if item.ID == params["id"] {
 			json.NewEncoder(w).Encode(item)
 			return
@@ -45,6 +45,13 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 
 }
 func createBook(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var book Book
+	_ = json.NewDecoder(r.Body).Decode(&book)
+	//Generate random number from 1 t0 10 million , convert it to string an set as Book id
+	book.ID = strconv.Itoa(rand.Intn(10000000000))
+	books = append(books, book)
+	json.NewEncoder(w).Encode(book)
 
 }
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +63,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 func main() {
 	// Init Mux Browser
 	r := mux.NewRouter()
-	book = append(book, Book{ID: "1", Isbn: "23456789", Title: "Great Wars", Author: &Author{FirstName: "Emeka", LastName: "Okorie"}})
+	books = append(books, Book{ID: "1", Isbn: "23456789", Title: "Great Wars", Author: &Author{FirstName: "Emeka", LastName: "Okorie"}})
 	// EndPoints / Route Handlers
 
 	r.HandleFunc("/api/books", getBooks).Methods("GET")
