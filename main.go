@@ -20,7 +20,7 @@ type Book struct {
 }
 type Author struct {
 	FirstName string `json:"firstname"`
-	LastName  string `json:"lasttname"`
+	LastName  string `json:"lastname"`
 }
 
 // Init Book slice
@@ -58,7 +58,15 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 }
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
-
+	// w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, value := range books {
+		if value.ID == params["id"] {
+			books = append(books[:index], books[index+1:]...)
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(books)
 }
 func main() {
 	// Init Mux Browser
